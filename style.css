@@ -1,0 +1,891 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body { /* Fond de page */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a3a2e 0%, #2d5f4d 50%, #1a3a2e 100%);
+    min-height: 100vh;
+    padding: 20px;
+    padding-left: 100px; /* Espace pour le menu latéral */
+    padding-bottom: 60px; /* Espace pour le footer fixe */
+}
+
+/* Menu latéral fixe */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 80px;
+    height: 100vh;
+    background: linear-gradient(180deg, #2d5f4d, #1a3a2e);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    gap: 20px;
+    z-index: 1000;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-button {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid #ffffff;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 1.8em;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.sidebar-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.sidebar-button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 75px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    font-size: 0.5em;
+}
+
+.sidebar-button:hover::after {
+    opacity: 1;
+}
+
+.container { /* Encadré hors onglets et titre */
+    max-width: 1400px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+h1 { /* Titre de la page */
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #2d5f4d, #1a3a2e);
+    color: #ffffff;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Bas de page */
+.site-footer {
+    position: fixed;
+    left: 80px;
+    bottom: 0;
+    width: calc(100% - 80px);
+    text-align: center;
+    padding: 5px;
+    background: linear-gradient(135deg, #2d5f4d, #1a3a2e);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.50em;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+}
+
+/* Popup */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-overlay.active {
+    display: flex;
+}
+
+.popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #e52a2a;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.popup-close:hover {
+    background: #c41e1e;
+    transform: rotate(90deg);
+}
+
+.popup-content h2 {
+    color: #2d5f4d;
+    margin-bottom: 20px;
+}
+
+.popup-content p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.popup-content ul, .popup-content ol {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.popup-content li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.popup-content code {
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #c41e1e;
+}
+
+/* Zone de texte éditable pour "Site" */
+.editable-content {
+    min-height: 200px;
+    padding: 15px;
+    background: #f5f5f5;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.save-button {
+    background: #2d5f4d;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.save-button:hover {
+    background: #1a3a2e;
+}
+
+/* Onglets */
+.tabs {
+    display: flex;
+    background: #dddddd;
+    border-bottom: 3px solid #2d5f4d;
+    overflow-x: auto;
+}
+
+.tab-button { /* Onglets */
+    flex: 1;
+    padding: 15px 20px;
+    background: #c8e6c9;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: all 0.3s;
+    border-right: 1px solid #a5d6a7;
+    color: #1b5e20;
+}
+
+.tab-button:hover {
+    background: #a5d6a7;
+}
+
+.tab-button.active {
+    background: #2d5f4d;
+    color: #ffffff;
+}
+
+/* Styles par onglet */
+.tab-button.standard.active { /*vert*/
+    background: #1d9f36;
+}
+
+.tab-button.summer.active { /*bleu clair*/
+    background: #49d4fb;
+}
+
+.tab-button.halloween.active { /*rouge*/
+    background: #e52a2a;
+}
+
+.tab-button.bloodlust.active { /*rouge*/
+    background: #e52a2a;
+}
+
+.tab-button.horizon.active { /*bleu fort*/
+    background: #07ffe2;
+}
+
+/* Contenu des onglets */
+.tab-content {
+    display: none;
+    padding: 30px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Filtres */
+.filters {
+    background: #dddddd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #2d5f4d;
+}
+
+.filters h3 {
+    color: #1b5e20;
+    margin-bottom: 15px;
+}
+
+.filter-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    display: block;
+    color: #2d5f4d;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.filter-group select {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #2d5f4d;
+    border-radius: 5px;
+    background: #dddddd;
+    font-size: 1em;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.filter-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-filter {
+    background: #2d5f4d;
+    color: white;
+}
+
+.btn-filter:hover {
+    background: #1a3a2e;
+}
+
+.btn-reset {
+    background: #9e9e9e;
+    color: white;
+}
+
+.btn-reset:hover {
+    background: #dddddd;
+}
+
+/* Statistiques */
+.stats {
+    background: #dddddd;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item .number {
+    font-size: 2em;
+    font-weight: bold;
+    color: #2d5f4d;
+}
+
+.stat-item .label {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Tableau */
+.table-container {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #dddddd;
+}
+
+thead {
+    background: #2d5f4d;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+th {
+    padding: 15px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 3px solid #1a3a2e;
+}
+
+th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+th.sortable:hover {
+    background: #1a3a2e;
+}
+
+th.sortable::after {
+    content: ' ⇅';
+    opacity: 0.5;
+}
+
+th.sortable.sorted-asc::after {
+    content: ' ▲';
+    opacity: 1;
+}
+
+th.sortable.sorted-desc::after {
+    content: ' ▼';
+    opacity: 1;
+}
+
+td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+}
+
+tbody tr:hover {
+    background: #f1f8e9;
+}
+
+tr.hidden {
+    display: none;
+}
+
+tr.caught {
+    background: #c8e6c9;
+}
+
+/* Checkbox personnalisée */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: #2d5f4d;
+}
+
+/* Badges pour conditions multiples */
+.conditions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-height: 30px;
+    align-items: center;
+}
+
+.condition-badge {
+    background: #e8f5e9;
+    color: #1b5e20;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    border: 1px solid #a5d6a7;
+    white-space: nowrap;
+}
+
+/* Couleurs par état */
+.condition-badge.clean {
+    background: #68c0ff;
+    color: #ffffff;
+    border-color: #0077cb;
+}
+
+.condition-badge.drunk {
+    background: #ffc0ad;
+    color: #ffffff;
+    border-color: #d9552d;
+}
+
+.condition-badge.high {
+    background: #e1bee7;
+    color: #6a1b9a;
+    border-color: #ba68c8;
+}
+
+/* Couleurs par lieu */
+.condition-badge.south_sea {
+    background: #b3e5fc;
+    color: #01579b;
+    border-color: #4fc3f7;
+}
+
+.condition-badge.north_sea {
+    background: #b2ebf2;
+    color: #006064;
+    border-color: #4dd0e1;
+}
+
+.condition-badge.big_lake {
+    background: #c5cae9;
+    color: #1a237e;
+    border-color: #7986cb;
+}
+
+.condition-badge.little_lake {
+    background: #d1c4e9;
+    color: #4a148c;
+    border-color: #9575cd;
+}
+
+.condition-badge.river {
+    background: #bbdefb;
+    color: #0d47a1;
+    border-color: #64b5f6;
+}
+
+.condition-badge.seaside {
+    background: #b2dfdb;
+    color: #004d40;
+    border-color: #4db6ac;
+}
+
+.condition-badge.canal {
+    background: #c8e6c9;
+    color: #1b5e20;
+    border-color: #81c784;
+}
+
+/* Couleurs par moment */
+.condition-badge.dawn {
+    background: #fff9c4;
+    color: #f57f17;
+    border-color: #fff176;
+}
+
+.condition-badge.day {
+    background: #ffecb3;
+    color: #ff6f00;
+    border-color: #ffd54f;
+}
+
+.condition-badge.dusk {
+    background: #ffccbc;
+    color: #bf360c;
+    border-color: #ff8a65;
+}
+
+.condition-badge.night {
+    background: #d1c4e9;
+    color: #311b92;
+    border-color: #9575cd;
+}
+
+.condition-badge.alltime {
+    background: linear-gradient(90deg, #fff9c4, #ffecb3, #ffccbc, #d1c4e9);
+    color: #ffffff;
+    border-color: #66bb6a;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Couleurs par météo */
+.condition-badge.EXTRASUNNY, .condition-badge.CLEAR {
+    background: #fff9c4;
+    color: #f57f17;
+    border-color: #fff176;
+}
+
+.condition-badge.CLOUDS, .condition-badge.OVERCAST {
+    background: #cfd8dc;
+    color: #37474f;
+    border-color: #90a4ae;
+}
+
+.condition-badge.RAIN, .condition-badge.THUNDER {
+    background: #b3e5fc;
+    color: #01579b;
+    border-color: #4fc3f7;
+}
+
+.condition-badge.CLEARING, .condition-badge.FOGGY {
+    background: #e0e0e0;
+    color: #424242;
+    border-color: #bdbdbd;
+}
+
+.condition-badge.SNOW, .condition-badge.BLIZZARD, .condition-badge.SNOWLIGHT, .condition-badge.XMAS {
+    background: #f5f5f5;
+    color: #616161;
+    border-color: #e0e0e0;
+}
+
+.condition-badge.HALLOWEEN {
+    background: #ff9800;
+    color: #ffffff;
+    border-color: #e65100;
+}
+
+.condition-badge.NEUTRAL {
+    background: linear-gradient(90deg, #81c784, #64b5f6, #fff176);
+    color: #ffffff;
+    border-color: #66bb6a;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Couleurs par état (etat) */
+.condition-badge.sobre {
+    background: #68c0ff;
+    color: #ffffff;
+    border-color: #0077cb;
+}
+
+.condition-badge.bourre {
+    background: #ffc0ad;
+    color: #ffffff;
+    border-color: #d9552d;
+}
+
+.condition-badge.defonce {
+    background: #e1bee7;
+    color: #6a1b9a;
+    border-color: #ba68c8;
+}
+
+/* Couleurs par lieu */
+.condition-badge.mer-sud {
+    background: #b3e5fc;
+    color: #01579b;
+    border-color: #4fc3f7;
+}
+
+.condition-badge.mer-nord {
+    background: #b2ebf2;
+    color: #006064;
+    border-color: #4dd0e1;
+}
+
+.condition-badge.grand-lac {
+    background: #c5cae9;
+    color: #1a237e;
+    border-color: #7986cb;
+}
+
+.condition-badge.petits-lacs {
+    background: #d1c4e9;
+    color: #4a148c;
+    border-color: #9575cd;
+}
+
+.condition-badge.rivieres {
+    background: #bbdefb;
+    color: #0d47a1;
+    border-color: #64b5f6;
+}
+
+.condition-badge.bords-de-mer {
+    background: #b2dfdb;
+    color: #004d40;
+    border-color: #4db6ac;
+}
+
+.condition-badge.canaux {
+    background: #c8e6c9;
+    color: #1b5e20;
+    border-color: #81c784;
+}
+
+/* Couleurs par moment */
+.condition-badge.aube {
+    background: #fff9c4;
+    color: #f57f17;
+    border-color: #fff176;
+}
+
+.condition-badge.journee {
+    background: #ffecb3;
+    color: #ff6f00;
+    border-color: #ffd54f;
+}
+
+.condition-badge.crepuscule {
+    background: #ffccbc;
+    color: #bf360c;
+    border-color: #ff8a65;
+}
+
+.condition-badge.nuit {
+    background: #d1c4e9;
+    color: #311b92;
+    border-color: #9575cd;
+}
+
+/* Couleurs par météo */
+.condition-badge.degage {
+    background: #fff9c4;
+    color: #f57f17;
+    border-color: #fff176;
+}
+
+.condition-badge.nuageux {
+    background: #cfd8dc;
+    color: #37474f;
+    border-color: #90a4ae;
+}
+
+.condition-badge.pluvieux {
+    background: #b3e5fc;
+    color: #01579b;
+    border-color: #4fc3f7;
+}
+
+.condition-badge.brumeux {
+    background: #e0e0e0;
+    color: #424242;
+    border-color: #bdbdbd;
+}
+
+.condition-badge.neigeux {
+    background: #f5f5f5;
+    color: #616161;
+    border-color: #e0e0e0;
+}
+
+.condition-badge.tempetueux {
+    background: #bcaaa4;
+    color: #3e2723;
+    border-color: #8d6e63;
+}
+
+.condition-badge.tout-temps {
+    background: linear-gradient(90deg, #81c784, #64b5f6, #fff176);
+    color: #ffffff;
+    border-color: #66bb6a;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        padding-left: 20px;
+    }
+
+    .sidebar {
+        width: 60px;
+    }
+
+    .site-footer {
+        left: 60px;
+        width: calc(100% - 60px);
+    }
+
+    .sidebar-button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5em;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        padding: 20px;
+    }
+
+    .tab-button {
+        font-size: 0.9em;
+        padding: 12px 10px;
+    }
+
+    .filter-group {
+        grid-template-columns: 1fr;
+    }
+
+    th, td {
+        padding: 8px;
+        font-size: 0.9em;
+    }
+}
+
+/* Tableau statistiques par zone */
+.zone-stats-container {
+    background: #dddddd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #2d5f4d;
+}
+
+.zone-stats-container h3 {
+    color: #1b5e20;
+    margin-bottom: 15px;
+}
+
+.zone-stats-table {
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.zone-stats-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.zone-stats-table thead {
+    background: #2d5f4d;
+    color: white;
+}
+
+.zone-stats-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #1a3a2e;
+}
+
+.zone-stats-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.zone-stats-table tr:hover {
+    background: #f1f8e9;
+}
+
+.zone-stats-table .progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.zone-stats-table .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #66bb6a, #43a047);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.zone-stats-table .zone-name {
+    font-weight: bold;
+    color: #2d5f4d;
+}
+
+.zone-stats-table .count {
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Style pour la carte des zones */
+.zone-map {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(750px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.zone-card {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #2d5f4d;
+}
+
+.zone-card h4 {
+    color: #2d5f4d;
+    margin-bottom: 8px;
+}
+
+.zone-card p {
+    color: #000000;
+    font-size: 0.9em;
+}

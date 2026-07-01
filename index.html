@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion du pêcheur</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Menu latéral fixe -->
+    <div class="sidebar">
+        <button class="sidebar-button" data-tooltip="Informations" onclick="openPopup('info')">ℹ️</button>
+        <button class="sidebar-button" data-tooltip="Notes" onclick="openPopup('site')">🌐</button>
+        <button class="sidebar-button" data-tooltip="Carte des zones" onclick="openPopup('map')">🗺️</button>
+        <button class="sidebar-button" data-tooltip="Réinitialiser" onclick="openPopup('reset')">🔄</button>
+        <button class="sidebar-button" data-tooltip="Sécurité des données" onclick="openPopup('security')">🔐</button>
+    </div>
+
+    <div class="container">
+        <h1>🐟 Suivi des poissons 🐟</h1>
+
+        <!-- Onglets -->
+        <div class="tabs">
+            <button class="tab-button standard active" onclick="switchTab('standard')">Standard</button>
+            <button class="tab-button summer" onclick="switchTab('summer')">Summer</button>
+            <button class="tab-button halloween" onclick="switchTab('halloween')">Halloween</button>
+            <button class="tab-button bloodlust" onclick="switchTab('bloodlust')">Bloodlust</button>
+            <button class="tab-button horizon" onclick="switchTab('horizon')">Horizon</button>
+        </div>
+
+        <!-- Contenu Standard -->
+        <div id="standard" class="tab-content active">
+            <!-- Statistiques -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number" id="stats-standard-caught">0</div>
+                    <div class="label">Capturés</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-standard-total">0</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-standard-percent">0%</div>
+                    <div class="label">Progression</div>
+                </div>
+            </div>
+
+            <!-- Statistiques par zone -->
+            <div class="zone-stats-container">
+                <h3>📍 Progression par zone</h3>
+                <div class="zone-stats-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th class="count">Capturés</th>
+                                <th class="count">Total</th>
+                                <th style="width: 40%;">Progression</th>
+                            </tr>
+                        </thead>
+                        <tbody id="zone-stats-standard">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Filtres -->
+            <div class="filters">
+                <h3>🔍 Filtres</h3>
+                <div class="filter-group">
+                    <div>
+                        <label>État</label>
+                        <select id="filter-standard-etat" onchange="applyFilters('standard')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Lieu</label>
+                        <select id="filter-standard-lieu" onchange="applyFilters('standard')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Moment</label>
+                        <select id="filter-standard-moment" onchange="applyFilters('standard')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Météo</label>
+                        <select id="filter-standard-meteo" onchange="applyFilters('standard')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn-reset" onclick="resetFilters('standard')">Réinitialiser</button>
+                </div>
+            </div>
+
+            <!-- Tableau -->
+            <div class="table-container">
+                <table id="table-standard">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortTable('standard', 0)">Nom</th>
+                            <th class="sortable" onclick="sortTable('standard', 1)">N°</th>
+                            <th class="sortable" onclick="sortTable('standard', 2)">Page</th>
+                            <th class="sortable" onclick="sortTable('standard', 3)">Capturé</th>
+                            <th class="sortable" onclick="sortTable('standard', 4)">États</th>
+                            <th class="sortable" onclick="sortTable('standard', 5)">Lieux</th>
+                            <th class="sortable" onclick="sortTable('standard', 6)">Moments</th>
+                            <th class="sortable" onclick="sortTable('standard', 7)">Météos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-standard">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Contenu Summer -->
+        <div id="summer" class="tab-content">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number" id="stats-summer-caught">0</div>
+                    <div class="label">Capturés</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-summer-total">0</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-summer-percent">0%</div>
+                    <div class="label">Progression</div>
+                </div>
+            </div>
+
+            <!-- Statistiques par zone -->
+            <div class="zone-stats-container">
+                <h3>📍 Progression par zone</h3>
+                <div class="zone-stats-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th class="count">Capturés</th>
+                                <th class="count">Total</th>
+                                <th style="width: 40%;">Progression</th>
+                            </tr>
+                        </thead>
+                        <tbody id="zone-stats-summer">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="filters">
+                <h3>🔍 Filtres</h3>
+                <div class="filter-group">
+                    <div>
+                        <label>État</label>
+                        <select id="filter-summer-etat" onchange="applyFilters('summer')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Lieu</label>
+                        <select id="filter-summer-lieu" onchange="applyFilters('summer')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Moment</label>
+                        <select id="filter-summer-moment" onchange="applyFilters('summer')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Météo</label>
+                        <select id="filter-summer-meteo" onchange="applyFilters('summer')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn-reset" onclick="resetFilters('summer')">Réinitialiser</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="table-summer">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortTable('summer', 0)">Nom</th>
+                            <th class="sortable" onclick="sortTable('summer', 1)">N°</th>
+                            <th class="sortable" onclick="sortTable('summer', 2)">Page</th>
+                            <th class="sortable" onclick="sortTable('summer', 3)">Capturé</th>
+                            <th class="sortable" onclick="sortTable('summer', 4)">États</th>
+                            <th class="sortable" onclick="sortTable('summer', 5)">Lieux</th>
+                            <th class="sortable" onclick="sortTable('summer', 6)">Moments</th>
+                            <th class="sortable" onclick="sortTable('summer', 7)">Météos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-summer">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Contenu Halloween -->
+        <div id="halloween" class="tab-content">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number" id="stats-halloween-caught">0</div>
+                    <div class="label">Capturés</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-halloween-total">0</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-halloween-percent">0%</div>
+                    <div class="label">Progression</div>
+                </div>
+            </div>
+
+            <!-- Statistiques par zone -->
+            <div class="zone-stats-container">
+                <h3>📍 Progression par zone</h3>
+                <div class="zone-stats-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th class="count">Capturés</th>
+                                <th class="count">Total</th>
+                                <th style="width: 40%;">Progression</th>
+                            </tr>
+                        </thead>
+                        <tbody id="zone-stats-halloween">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="filters">
+                <h3>🔍 Filtres</h3>
+                <div class="filter-group">
+                    <div>
+                        <label>État</label>
+                        <select id="filter-halloween-etat" onchange="applyFilters('halloween')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Lieu</label>
+                        <select id="filter-halloween-lieu" onchange="applyFilters('halloween')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Moment</label>
+                        <select id="filter-halloween-moment" onchange="applyFilters('halloween')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Météo</label>
+                        <select id="filter-halloween-meteo" onchange="applyFilters('halloween')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn-reset" onclick="resetFilters('halloween')">Réinitialiser</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="table-halloween">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortTable('halloween', 0)">Nom</th>
+                            <th class="sortable" onclick="sortTable('halloween', 1)">N°</th>
+                            <th class="sortable" onclick="sortTable('halloween', 2)">Page</th>
+                            <th class="sortable" onclick="sortTable('halloween', 3)">Capturé</th>
+                            <th class="sortable" onclick="sortTable('halloween', 4)">États</th>
+                            <th class="sortable" onclick="sortTable('halloween', 5)">Lieux</th>
+                            <th class="sortable" onclick="sortTable('halloween', 6)">Moments</th>
+                            <th class="sortable" onclick="sortTable('halloween', 7)">Météos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-halloween">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Contenu Bloodlust -->
+        <div id="bloodlust" class="tab-content">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number" id="stats-bloodlust-caught">0</div>
+                    <div class="label">Capturés</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-bloodlust-total">0</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-bloodlust-percent">0%</div>
+                    <div class="label">Progression</div>
+                </div>
+            </div>
+
+            <!-- Statistiques par zone -->
+            <div class="zone-stats-container">
+                <h3>📍 Progression par zone</h3>
+                <div class="zone-stats-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th class="count">Capturés</th>
+                                <th class="count">Total</th>
+                                <th style="width: 40%;">Progression</th>
+                            </tr>
+                        </thead>
+                        <tbody id="zone-stats-bloodlust">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="filters">
+                <h3>🔍 Filtres</h3>
+                <div class="filter-group">
+                    <div>
+                        <label>État</label>
+                        <select id="filter-bloodlust-etat" onchange="applyFilters('bloodlust')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Lieu</label>
+                        <select id="filter-bloodlust-lieu" onchange="applyFilters('bloodlust')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Moment</label>
+                        <select id="filter-bloodlust-moment" onchange="applyFilters('bloodlust')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Météo</label>
+                        <select id="filter-bloodlust-meteo" onchange="applyFilters('bloodlust')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn-reset" onclick="resetFilters('bloodlust')">Réinitialiser</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="table-bloodlust">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortTable('bloodlust', 0)">Nom</th>
+                            <th class="sortable" onclick="sortTable('bloodlust', 1)">N°</th>
+                            <th class="sortable" onclick="sortTable('bloodlust', 2)">Page</th>
+                            <th class="sortable" onclick="sortTable('bloodlust', 3)">Capturé</th>
+                            <th class="sortable" onclick="sortTable('bloodlust', 4)">États</th>
+                            <th class="sortable" onclick="sortTable('bloodlust', 5)">Lieux</th>
+                            <th class="sortable" onclick="sortTable('bloodlust', 6)">Moments</th>
+                            <th class="sortable" onclick="sortTable('bloodlust', 7)">Météos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-bloodlust">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Contenu Horizon -->
+        <div id="horizon" class="tab-content">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number" id="stats-horizon-caught">0</div>
+                    <div class="label">Capturés</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-horizon-total">0</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="stats-horizon-percent">0%</div>
+                    <div class="label">Progression</div>
+                </div>
+            </div>
+
+            <!-- Statistiques par zone -->
+            <div class="zone-stats-container">
+                <h3>📍 Progression par zone</h3>
+                <div class="zone-stats-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th class="count">Capturés</th>
+                                <th class="count">Total</th>
+                                <th style="width: 40%;">Progression</th>
+                            </tr>
+                        </thead>
+                        <tbody id="zone-stats-horizon">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="filters">
+                <h3>🔍 Filtres</h3>
+                <div class="filter-group">
+                    <div>
+                        <label>État</label>
+                        <select id="filter-horizon-etat" onchange="applyFilters('horizon')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Lieu</label>
+                        <select id="filter-horizon-lieu" onchange="applyFilters('horizon')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Moment</label>
+                        <select id="filter-horizon-moment" onchange="applyFilters('horizon')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Météo</label>
+                        <select id="filter-horizon-meteo" onchange="applyFilters('horizon')">
+                            <option value="">Tous</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn-reset" onclick="resetFilters('horizon')">Réinitialiser</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="table-horizon">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortTable('horizon', 0)">Nom</th>
+                            <th class="sortable" onclick="sortTable('horizon', 1)">N°</th>
+                            <th class="sortable" onclick="sortTable('horizon', 2)">Page</th>
+                            <th class="sortable" onclick="sortTable('horizon', 3)">Capturé</th>
+                            <th class="sortable" onclick="sortTable('horizon', 4)">États</th>
+                            <th class="sortable" onclick="sortTable('horizon', 5)">Lieux</th>
+                            <th class="sortable" onclick="sortTable('horizon', 6)">Moments</th>
+                            <th class="sortable" onclick="sortTable('horizon', 7)">Météos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-horizon">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p>© 2026 Gestion du pêcheur — Tous droits réservés</p>
+    </footer>
+
+    <!-- Popup Site -->
+    <div class="popup-overlay" id="sitePopup" onclick="closePopup(event, 'site')">
+        <div class="popup-content" onclick="event.stopPropagation()">
+            <button class="popup-close" onclick="closePopup(null, 'site')">✕</button>
+            <h2>🌐 Notes personnelles</h2>
+            <div class="editable-content" contenteditable="true" id="siteContent">
+                <p>Bienvenue sur le gestionnaire de pêche !</p>
+                <p>Vous pouvez modifier ce texte pour vos notes personnelles</p>
+            </div>
+            <button class="save-button" onclick="saveSiteContent()">💾 Sauvegarder</button>
+        </div>
+    </div>
+
+    <!-- Popup Carte des zones -->
+    <div class="popup-overlay" id="mapPopup" onclick="closePopup(event, 'map')">
+        <div class="popup-content" onclick="event.stopPropagation()">
+            <button class="popup-close" onclick="closePopup(null, 'map')">✕</button>
+            <h2>🗺️ Carte des zones de pêche</h2>
+            <div class="zone-map">
+                <!-- Ajoute/modifie tes zones directement ici -->
+                <div class="zone-card">
+                    <h4>Mer Sud</h4>
+                    <p>Notes sur cette zone...</p>
+                </div>
+                <div class="zone-card">
+                    <h4>Mer Nord</h4>
+                    <p>Notes sur cette zone...</p>
+                </div>
+                <div class="zone-card">
+                    <h4>Grand lac</h4>
+                    <p>Notes sur cette zone...</p>
+                </div>
+                <div class="zone-card">
+                    <h4>Petits lacs</h4>
+                    <p>Notes sur cette zone...</p>
+                </div>
+                <div class="zone-card">
+                    <h4>Bords de mer</h4>
+                    <p>Notes sur cette zone...</p>
+                </div>
+                <div class="zone-card">
+                    <h4>Rivières</h4>
+                    <p>Notes sur cette zone...</p>
+                </div>
+                <div class="zone-card">
+                    <h4>Canaux</h4>
+                    <p>Notes sur cette zone...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Informations -->
+    <div class="popup-overlay" id="infoPopup" onclick="closePopup(event, 'info')">
+        <div class="popup-content" onclick="event.stopPropagation()">
+            <button class="popup-close" onclick="closePopup(null, 'info')">✕</button>
+            <h2>ℹ️ Informations</h2>
+            <p><strong>Bienvenue sur le gestionnaire de pêche !</strong></p>
+            <p><strong>Fonctionnalités :</strong></p>
+            <ul>
+                <li>✅ Cochez les poissons capturés</li>
+                <li>🔍 Filtrez par état, lieu, moment et météo</li>
+                <li>📊 Suivez votre progression en temps réel</li>
+                <li>🗂️ Triez les colonnes en cliquant sur les en-têtes</li>
+            </ul>
+            <p><em>Vos données sont sauvegardées localement dans votre navigateur.</em></p>
+        </div>
+    </div>
+
+    <!-- Popup Réinitialiser -->
+    <div class="popup-overlay" id="resetPopup" onclick="closePopup(event, 'reset')">
+        <div class="popup-content" onclick="event.stopPropagation()">
+            <button class="popup-close" onclick="closePopup(null, 'reset')">✕</button>
+            <h2>🔄 Réinitialiser mes données</h2>
+            <p><strong>Pour réinitialiser uniquement les poissons pêchés :</strong></p>
+            <ol>
+                <li>Appuyez sur <strong>F12</strong></li>
+                <li>Allez dans l'onglet <strong>Console</strong></li>
+                <li>Entrez la commande <code>localStorage.removeItem('caughtFish')</code></li>
+                <li>Rechargez la page</li>
+            </ol>
+            <p><strong>Pour réinitialiser uniquement les notes personnelles :</strong></p>
+            <ol>
+                <li>Appuyez sur <strong>F12</strong></li>
+                <li>Allez dans l'onglet <strong>Console</strong></li>
+                <li>Entrez la commande <code>localStorage.removeItem('siteContent')</code></li>
+                <li>Rechargez la page</li>
+            </ol>
+            <p><strong>Pour réinitialiser toutes vos données :</strong></p>
+            <ol>
+                <li>Appuyez sur <strong>F12</strong></li>
+                <li>Allez dans l'onglet <strong>Console</strong></li>
+                <li>Entrez les commandes <code>localStorage.removeItem('caughtFish')</code> & <code>localStorage.removeItem('siteContent');</code></li>
+                <li>Rechargez la page</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Popup Sécurité des données -->
+    <div class="popup-overlay" id="securityPopup" onclick="closePopup(event, 'security')">
+        <div class="popup-content" onclick="event.stopPropagation()">
+            <button class="popup-close" onclick="closePopup(null, 'security')">✕</button>
+            <h2>🔐 Sécurité des données</h2>
+            <p><em>Vos données sont stockées uniquement dans ce navigateur. Un changement d'appareil, de navigateur, ou un vidage du cache les effacera. Exportez-les régulièrement pour les garder en sécurité.</em></p>
+
+            <p><strong>📤 Exporter mes données</strong></p>
+            <p>Télécharge un fichier <code>.json</code> contenant tes poissons capturés et tes notes personnelles.</p>
+            <button class="save-button" onclick="exportData()">📤 Exporter</button>
+
+            <p style="margin-top: 20px;"><strong>📥 Importer mes données</strong></p>
+            <p>Restaure des données précédemment exportées (remplace les données actuelles).</p>
+            <input type="file" id="importFileInput" accept="application/json" style="margin-bottom: 15px;">
+            <br>
+            <button class="save-button" onclick="importData()">📥 Importer</button>
+        </div>
+    </div>
+
+    <!-- Fichiers de données par catégorie -->
+    <script src="data_standard.js"></script>
+    <script src="data_summer.js"></script>
+    <script src="data_halloween.js"></script>
+    <script src="data_bloodlust.js"></script>
+    <script src="data_horizon.js"></script>
+    <!-- Logique principale de l'application -->
+    <script src="app.js"></script>
+</body>
+</html>
