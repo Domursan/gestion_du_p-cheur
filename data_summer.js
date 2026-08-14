@@ -160,7 +160,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Défoncé"],
                     lieu: ["Grand Lac", "Petits Lacs"],
                     moment: ["Aube", "Journée", "Crépuscule", "Nuit"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Crabctus",
@@ -187,7 +187,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Mer Nord", "Grand Lac"],
                     moment: ["Nuit", "Aube", "Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Lithogemme",
@@ -250,7 +250,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Bords de mer"],
                     moment: ["Nuit", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Astrocarnis",
@@ -268,7 +268,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Bords de mer", "Mer Nord", "Mer Sud"],
                     moment: ["Nuit", "Aube", "Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Tortoasis",
@@ -286,7 +286,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Mer Nord", "Rivières"],
                     moment: ["Nuit", "Aube"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Cactiblob",
@@ -466,7 +466,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Grand Lac"],
                     moment: ["Nuit", "Aube", "Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Eclastae",
@@ -502,7 +502,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Bords de mer", "Rivières"],
                     moment: ["Nuit", "Aube", "Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Driffy",
@@ -520,7 +520,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Bourré"],
                     lieu: ["Bords de mer", "Mer Sud"],
                     moment: ["Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Shineel",
@@ -538,7 +538,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Défoncé"],
                     lieu: ["Petits Lacs", "Canaux"],
                     moment: ["Aube"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Hippocorn",
@@ -547,7 +547,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Bourré"],
                     lieu: ["Bords de mer", "Grand Lac"],
                     moment: ["Nuit", "Journée", "Crépuscule", "Aube"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Mariusorite",
@@ -655,7 +655,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Rivières", "Canaux"],
                     moment: ["Aube", "Journée", "Crépuscule", "Nuit"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Pitris Aeris",
@@ -673,7 +673,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Mer Nord", "Canaux"],
                     moment: ["Aube", "Journée", "Crépuscule", "Nuit"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Bismuth Testa",
@@ -763,7 +763,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Défoncé"],
                     lieu: ["Rivières", "Canaux"],
                     moment: ["Aube", "Journée"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Rectus Rictus",
@@ -880,7 +880,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Canaux"],
                     moment: ["Nuit"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Karmonite",
@@ -898,7 +898,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Grand Lac"],
                     moment: ["Nuit", "Aube", "Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Limabus",
@@ -943,7 +943,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Bords de mer"],
                     moment: ["Aube", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Cristarin",
@@ -952,7 +952,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Bourré"],
                     lieu: ["Rivières", "Canaux"],
                     moment: ["Aube", "Journée"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Gustfish",
@@ -961,7 +961,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Rivières"],
                     moment: ["Nuit", "Aube", "Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Delphini Aora",
@@ -979,7 +979,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Rivières", "Canaux"],
                     moment: ["Nuit"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Sédicendre",
@@ -988,7 +988,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Bords de mer", "Mer Nord"],
                     moment: ["Nuit"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Coquroche",
@@ -997,7 +997,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Bords de mer", "Mer Nord"],
                     moment: ["Nuit", "Aube", "Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Sablefin",
@@ -1006,7 +1006,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Défoncé"],
                     lieu: ["Rivières", "Canaux"],
                     moment: ["Aube", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Lord Keos",
@@ -1024,7 +1024,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Bords de mer", "Canaux"],
                     moment: ["Nuit", "Aube", "Journée", "Crépuscule"],
-                    meteo: ["Tout temps"]
+                    meteo: ["Dégagé", "Nuageux", "Pluvieux", "Brumeux", "Neigeux", "Tempêtueux"]
                 },
                 {
                     nom: "Pépéronius Fumantis",
