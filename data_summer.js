@@ -7,7 +7,7 @@ const FISH_DATA_SUMMER = [
                     etat: ["Sobre"],
                     lieu: ["Mer Nord", "Mer Sud", "Bords de mer"],
                     moment: ["Nuit"],
-                    meteo: ["Nuageux", "Neigeux", "Tempêtueux"]
+                    meteo: ["Nuageux", "Tempêtueux"]
                 },
                 {
                     nom: "Dunequartz Fossilfin",
