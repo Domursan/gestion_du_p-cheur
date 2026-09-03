@@ -1,32 +1,17 @@
-// app.js - Logique principale du gestionnaire de pêche
+// app.js - Gestion du pêcheur
 
-// Mapping des zones de pêche
-const zoneMapping = {
-    'south_sea': 'Mer Sud',
-    'north_sea': 'Mer Nord',
-    'big_lake': 'Grand lac',
-    'little_lake': 'Petits lacs',
-    'seaside': 'Bords de mer',
-    'river': 'Rivières',
-    'canal': 'Canaux'
-};
-
-// Mapping des états (ajoute un emoji devant le texte)
+// ---------- Mappings d'icônes (texte affiché en fiche détail) ----------
 const statusMapping = {
     'Sobre': '😊 Sobre',
     'Bourré': '🍺 Bourré',
     'Défoncé': '💨 Défoncé'
 };
-
-// Mapping des moments (ajoute un emoji devant le texte)
 const periodMapping = {
     'Aube': '🌅 Aube',
     'Journée': '☀️ Journée',
     'Crépuscule': '🌆 Crépuscule',
     'Nuit': '🌙 Nuit'
 };
-
-// Mapping des météos (ajoute un emoji devant le texte)
 const weatherMapping = {
     'Dégagé': '☀️ Dégagé',
     'Nuageux': '☁️ Nuageux',
@@ -37,7 +22,29 @@ const weatherMapping = {
     'Tout temps': '🌈 Tout temps'
 };
 
-// Assemblage de la base de données à partir des fichiers data-*.js
+// Icônes seules (pour les cartes)
+const STATUS_ICON = { 'Sobre':'😊', 'Bourré':'🍺', 'Défoncé':'💨' };
+const MOMENT_ICON = { 'Aube':'🌅', 'Journée':'☀️', 'Crépuscule':'🌆', 'Nuit':'🌙' };
+const WEATHER_ICON = { 'Dégagé':'☀️', 'Nuageux':'☁️', 'Pluvieux':'🌧️', 'Brumeux':'🌫️', 'Neigeux':'❄️', 'Tempêtueux':'⛈️' };
+const ALL_WEATHER_ICONS = ['☀️','☁️','🌧️','🌫️','❄️','⛈️'];
+const ALL_WEATHER_TEXT = ['Dégagé','Nuageux','Pluvieux','Brumeux','Neigeux','Tempêtueux'];
+
+// Icônes de lieu : construites depuis la vraie correspondance de zones (popup "Carte des zones"),
+// pas une déduction par mot-clé — indispensable pour Horizon dont les noms sont poétiques.
+const ZONE_ICONS = {
+    standard: { 'Mer Sud':'🌊', 'Mer Nord':'🌊', 'Grand Lac':'🏞️', 'Petits Lacs':'💧', 'Bords de mer':'⚓', 'Rivières':'〰️', 'Canaux':'🚤' },
+    summer:   { 'Mer Sud':'🌊', 'Mer Nord':'🌊', 'Grand Lac':'🏞️', 'Petits Lacs':'💧', 'Bords de mer':'⚓', 'Rivières':'〰️', 'Canaux':'🚤' },
+    halloween:{ 'Mer de la Nuit':'🌊', 'Abysses du Nord':'🌊', "Lac de l'Effroi":'🏞️', 'Etangs Sombres':'💧', 'Côte des Ombres':'⚓', 'Fleuves Ténébreux':'〰️', 'Canaux du Cauchemar':'🚤' },
+    bloodlust:{ 'Mer des Lamentations':'🌊', 'Abysses Obscurs':'🌊', 'Lac Sombre':'🏞️', 'Etangs Morts':'💧', 'Côte des Mânes':'⚓', 'Fleuves Pourpres':'〰️', 'Canaux de la Nuit':'🚤' },
+    horizon:  { 'Crique de glace':'🌊', 'Baie des Brumes Gelées':'🌊', 'Désert de givre':'🏞️', 'Etendues givrées':'💧', 'Côtes gelées':'⚓', 'Fleuves Cristallisés':'〰️', 'Quartiers Figés':'🚤' }
+};
+
+const categoryLabels = { standard:'Standard', summer:'Summer', halloween:'Halloween', bloodlust:'Bloodlust', horizon:'Horizon' };
+
+// Halloween et Bloodlust sont 100% "Tout temps" : le filtre météo n'y a aucun effet utile
+const CATEGORIES_WITHOUT_METEO_FILTER = ['halloween', 'bloodlust'];
+
+// ---------- Données ----------
 const fishData = {
     standard: FISH_DATA_STANDARD,
     summer: FISH_DATA_SUMMER,
@@ -45,392 +52,491 @@ const fishData = {
     bloodlust: FISH_DATA_BLOODLUST,
     horizon: FISH_DATA_HORIZON
 };
+const validCategories = Object.keys(fishData);
 
-// Fonction pour créer des badges de conditions
-function createConditionBadges(conditions, mappingObj = null) {
-    if (!conditions || conditions.length === 0) return 'N/A';
+let viewMode = {};
+const selectedFilters = {}; // { cat: { etat:Set, lieu:Set, moment:Set, meteo:Set } }
+const captureFilterState = {}; // { cat: { caught:bool, uncaught:bool } }
 
-    // Gérer le cas où conditions est une chaîne au lieu d'un tableau
-    const condArray = Array.isArray(conditions) ? conditions : [conditions];
+validCategories.forEach(cat => {
+    selectedFilters[cat] = { etat: new Set(), lieu: new Set(), moment: new Set(), meteo: new Set() };
+    captureFilterState[cat] = { caught: false, uncaught: false };
+});
 
-    return condArray.map(cond => {
-        const displayText = mappingObj && mappingObj[cond] ? mappingObj[cond] : cond;
-        // Normaliser le texte pour la classe CSS (enlever accents, espaces, apostrophes...)
-        const className = cond
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "") // Enlever les accents
-            .replace(/\s+/g, '-') // Remplacer espaces par tirets
-            .replace(/['']/g, ''); // Enlever apostrophes
-        return `<span class="condition-badge ${className}">${displayText}</span>`;
-    }).join('');
-}
-
-// Charger les poissons capturés depuis localStorage
-function loadCaughtFish() {
-    return JSON.parse(localStorage.getItem('caughtFish') || '{}');
-}
-
-// Sauvegarder les poissons capturés
-function saveCaughtFish(caughtFish) {
-    localStorage.setItem('caughtFish', JSON.stringify(caughtFish));
-}
-
-// Basculer l'état de capture
-function toggleCaught(category, index) {
+// ---------- Persistance capture ----------
+function loadCaughtFish() { return JSON.parse(localStorage.getItem('caughtFish') || '{}'); }
+function saveCaughtFish(caughtFish) { localStorage.setItem('caughtFish', JSON.stringify(caughtFish)); }
+function isCaught(category, index) { return !!loadCaughtFish()[`${category}-${index}`]; }
+function setCaught(category, index, value) {
     const caughtFish = loadCaughtFish();
     const key = `${category}-${index}`;
-
-    if (caughtFish[key]) {
-        delete caughtFish[key];
-    } else {
-        caughtFish[key] = true;
-    }
-
+    if (value) caughtFish[key] = true; else delete caughtFish[key];
     saveCaughtFish(caughtFish);
+}
+
+// ---------- Icônes de condition (cartes + modale) ----------
+function weatherIconsFor(meteoArray) {
+    if (meteoArray.includes('Tout temps')) return ALL_WEATHER_ICONS.join('');
+    return meteoArray.map(m => WEATHER_ICON[m] || '').join('');
+}
+function weatherTextChipsFor(meteoArray) {
+    if (meteoArray.includes('Tout temps')) return ALL_WEATHER_TEXT.map(t => `${WEATHER_ICON[t]} ${t}`);
+    return meteoArray.map(m => weatherMapping[m] || m);
+}
+function zoneIconsFor(category, lieuArray) {
+    const map = ZONE_ICONS[category] || {};
+    return lieuArray.map(l => map[l] || '📍').join('');
+}
+
+function renderCondBlock(category, f) {
+    return `
+        <div class="cond-block">
+            <div class="cond-line"><span class="cond-tag">État</span><span class="cond-icons">${f.etat.map(e => STATUS_ICON[e] || '').join('')}</span></div>
+            <div class="cond-line"><span class="cond-tag">Lieu</span><span class="cond-icons">${zoneIconsFor(category, f.lieu)}</span></div>
+            <div class="cond-line"><span class="cond-tag">Mom.</span><span class="cond-icons">${f.moment.map(m => MOMENT_ICON[m] || '').join('')}</span></div>
+            <div class="cond-line"><span class="cond-tag">Mét.</span><span class="cond-icons">${weatherIconsFor(f.meteo)}</span></div>
+        </div>`;
+}
+
+// ---------- Vue cartes ----------
+function renderCards(category) {
+    const grid = document.getElementById(`grid-${category}`);
+    if (!grid) return;
+    const fish = fishData[category];
+
+    grid.innerHTML = '';
+    fish.forEach((f, index) => {
+        const caught = isCaught(category, index);
+        const card = document.createElement('div');
+        card.className = `fish-card ${caught ? 'caught' : 'uncaught'}`;
+        card.setAttribute('data-index', index);
+
+        card.innerHTML = `
+            <span class="ring"></span>
+            <span class="spark s1">✦</span>
+            <span class="spark s2">✧</span>
+            <span class="spark s3">✦</span>
+            <div class="card-top">
+                <div class="card-num">${f.numero2}</div>
+                <button class="detail-btn" aria-label="Voir la fiche détail" onclick="openFishModal('${category}', ${index})">i</button>
+            </div>
+            <div class="card-icon">🐟</div>
+            <div class="card-name">${f.nom}</div>
+            ${renderCondBlock(category, f)}
+            <button type="button" class="capture-row" aria-pressed="${caught ? 'true' : 'false'}" onclick="toggleCaught('${category}', ${index})">
+                <span class="capture-checkbox">✓</span>
+                <span class="capture-label">Capturé</span>
+            </button>
+        `;
+        grid.appendChild(card);
+    });
+
+    applyFilters(category);
+}
+
+function toggleCaught(category, index) {
+    const nowCaught = !isCaught(category, index);
+    setCaught(category, index, nowCaught);
+
     updateStats(category);
     updateZoneStats(category);
 
-    const row = document.querySelector(`#tbody-${category} tr[data-index="${index}"]`);
-    if (caughtFish[key]) {
-        row.classList.add('caught');
+    if (viewMode[category] === 'list') {
+        updateSingleRow(category, index);
     } else {
-        row.classList.remove('caught');
+        updateSingleCard(category, index, nowCaught);
+    }
+    applyFilters(category);
+
+    if (currentModal.category === category && currentModal.index === index) {
+        updateModalCaptureState();
     }
 }
 
-// Générer le tableau pour une catégorie
-function generateTable(category) {
+// Met à jour uniquement la carte concernée (classes, aria, animation) sans reconstruire toute la grille
+function updateSingleCard(category, index, justCaught) {
+    const card = document.querySelector(`#grid-${category} .fish-card[data-index="${index}"]`);
+    if (!card) return;
+
+    const caught = isCaught(category, index);
+    card.classList.toggle('caught', caught);
+    card.classList.toggle('uncaught', !caught);
+
+    const captureBtn = card.querySelector('.capture-row');
+    if (captureBtn) captureBtn.setAttribute('aria-pressed', caught ? 'true' : 'false');
+
+    card.classList.remove('just-caught');
+    if (justCaught) {
+        void card.offsetWidth; // force le navigateur à relire le style avant de rajouter la classe, pour relancer l'animation
+        card.classList.add('just-caught');
+        card.addEventListener('animationend', () => card.classList.remove('just-caught'), { once: true });
+    }
+}
+
+// Met à jour uniquement la ligne concernée en vue liste
+function updateSingleRow(category, index) {
+    const row = document.querySelector(`#tbody-${category} tr[data-index="${index}"]`);
+    if (!row) return;
+
+    const caught = isCaught(category, index);
+    row.classList.toggle('caught', caught);
+    const checkbox = row.querySelector('.checkbox-container input');
+    if (checkbox) checkbox.checked = caught;
+}
+
+// ---------- Modale de détails ----------
+let currentModal = { category: null, index: null };
+
+function openFishModal(category, index) {
+    currentModal = { category, index };
+    const f = fishData[category][index];
+
+    document.body.querySelectorAll('.fish-modal').forEach(m => {}); // no-op, single modal reused
+    document.getElementById('fmNumber').textContent = `N° ${f.numero} — Page ${f.numero2}`;
+    document.getElementById('fmName').textContent = f.nom;
+
+    document.getElementById('fmEtat').innerHTML = f.etat.map(e => `<div class="fm-value"><span>${STATUS_ICON[e] || ''}</span> ${e}</div>`).join('');
+    document.getElementById('fmLieu').innerHTML = f.lieu.map(l => `<div class="fm-value"><span>${(ZONE_ICONS[category] || {})[l] || '📍'}</span> ${l}</div>`).join('');
+    document.getElementById('fmMoment').innerHTML = f.moment.map(m => `<div class="fm-value"><span>${MOMENT_ICON[m] || ''}</span> ${m}</div>`).join('');
+    document.getElementById('fmMeteo').innerHTML = weatherTextChipsFor(f.meteo).map(t => `<div class="fm-value">${t}</div>`).join('');
+
+    updateModalCaptureState();
+    document.getElementById('fishModalOverlay').classList.add('active');
+}
+
+function updateModalCaptureState() {
+    const { category, index } = currentModal;
+    const caught = isCaught(category, index);
+    const modal = document.getElementById('fishModal');
+    modal.classList.toggle('caught', caught);
+    document.getElementById('fmCaptureText').textContent = caught ? 'Marqué comme capturé' : 'Non capturé';
+    document.getElementById('fmCaptureSub').textContent = caught ? 'Cliquer pour retirer' : 'Cliquer pour marquer comme capturé';
+}
+
+function toggleCaptureFromModal() {
+    const { category, index } = currentModal;
+    toggleCaught(category, index);
+}
+
+function closeFishModal(event) {
+    if (!event || event.target.classList.contains('fish-modal-overlay') || event.target.classList.contains('fish-modal-close')) {
+        document.getElementById('fishModalOverlay').classList.remove('active');
+    }
+}
+
+// ---------- Vue liste ----------
+function renderTableRows(category) {
     const tbody = document.getElementById(`tbody-${category}`);
+    if (!tbody) return;
     const fish = fishData[category];
-    const caughtFish = loadCaughtFish();
 
     tbody.innerHTML = '';
-
     fish.forEach((f, index) => {
-        const key = `${category}-${index}`;
-        const isCaught = caughtFish[key] || false;
-
+        const caught = isCaught(category, index);
         const row = document.createElement('tr');
         row.setAttribute('data-index', index);
         row.setAttribute('data-original-index', index);
-        if (isCaught) row.classList.add('caught');
+        if (caught) row.classList.add('caught');
 
-        // Utiliser les noms de propriétés de la base de données
         row.innerHTML = `
             <td>${f.nom}</td>
             <td>${f.numero}</td>
             <td>${f.numero2}</td>
-            <td class="checkbox-container">
-                <input type="checkbox" ${isCaught ? 'checked' : ''} 
-                    onchange="toggleCaught('${category}', ${index})">
-            </td>
-            <td><div class="conditions">${createConditionBadges(f.etat, statusMapping)}</div></td>
-            <td><div class="conditions">${createConditionBadges(f.lieu)}</div></td>
-            <td><div class="conditions">${createConditionBadges(f.moment, periodMapping)}</div></td>
-            <td><div class="conditions">${createConditionBadges(f.meteo, weatherMapping)}</div></td>
+            <td class="checkbox-container"><input type="checkbox" ${caught ? 'checked' : ''} onchange="toggleCaught('${category}', ${index})"></td>
+            <td><div class="conditions">${f.etat.map(e => `<span class="condition-badge">${STATUS_ICON[e] || ''} ${e}</span>`).join('')}</div></td>
+            <td><div class="conditions">${f.lieu.map(l => `<span class="condition-badge">${(ZONE_ICONS[category]||{})[l]||''} ${l}</span>`).join('')}</div></td>
+            <td><div class="conditions">${f.moment.map(m => `<span class="condition-badge">${MOMENT_ICON[m]||''} ${m}</span>`).join('')}</div></td>
+            <td><div class="conditions">${weatherTextChipsFor(f.meteo).map(t => `<span class="condition-badge">${t}</span>`).join('')}</div></td>
         `;
-
         tbody.appendChild(row);
     });
-
-    updateStats(category);
-    updateZoneStats(category);
-    populateFilters(category);
+    applyFilters(category);
 }
 
-// Mettre à jour les statistiques
+function setViewMode(category, mode) {
+    viewMode[category] = mode;
+    localStorage.setItem('viewMode', JSON.stringify(viewMode));
+    document.getElementById(`view-cards-${category}`).classList.toggle('active', mode === 'cards');
+    document.getElementById(`view-list-${category}`).classList.toggle('active', mode === 'list');
+    document.getElementById(`cards-wrap-${category}`).style.display = mode === 'cards' ? 'block' : 'none';
+    document.getElementById(`list-wrap-${category}`).style.display = mode === 'list' ? 'block' : 'none';
+    if (mode === 'list') renderTableRows(category); else renderCards(category);
+}
+
+// ---------- Stats ----------
 function updateStats(category) {
     const fish = fishData[category];
-    const caughtFish = loadCaughtFish();
-
-    const total = fish.length;
     let caught = 0;
-
-    fish.forEach((f, index) => {
-        const key = `${category}-${index}`;
-        if (caughtFish[key]) caught++;
-    });
-
+    fish.forEach((f, index) => { if (isCaught(category, index)) caught++; });
+    const total = fish.length;
     const percent = total > 0 ? Math.round((caught / total) * 100) : 0;
 
     document.getElementById(`stats-${category}-caught`).textContent = caught;
     document.getElementById(`stats-${category}-total`).textContent = total;
-    document.getElementById(`stats-${category}-percent`).textContent = percent + '%';
+    const fill = document.getElementById(`gp-fill-${category}`);
+    fill.style.width = percent + '%';
+    fill.textContent = percent + '%';
 }
 
-// Mettre à jour les statistiques par zone
 function updateZoneStats(category) {
     const fish = fishData[category];
-    const caughtFish = loadCaughtFish();
-    const tbody = document.getElementById(`zone-stats-${category}`);
-
-    if (!tbody) return;
+    const container = document.getElementById(`zone-stats-${category}`);
+    if (!container) return;
 
     const zoneStats = {};
-
     fish.forEach((f, index) => {
-        const key = `${category}-${index}`;
-        const isCaught = caughtFish[key] || false;
-
+        const caught = isCaught(category, index);
         f.lieu.forEach(lieu => {
-            const displayName = zoneMapping[lieu] || lieu;
-            if (!zoneStats[displayName]) {
-                zoneStats[displayName] = { total: 0, caught: 0 };
-            }
-            zoneStats[displayName].total++;
-            if (isCaught) {
-                zoneStats[displayName].caught++;
-            }
+            if (!zoneStats[lieu]) zoneStats[lieu] = { total: 0, caught: 0 };
+            zoneStats[lieu].total++;
+            if (caught) zoneStats[lieu].caught++;
         });
     });
 
-    const sortedZones = Object.keys(zoneStats).sort();
-
-    tbody.innerHTML = '';
-    sortedZones.forEach(zone => {
-        const stats = zoneStats[zone];
-        const percent = stats.total > 0 ? Math.round((stats.caught / stats.total) * 100) : 0;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="zone-name">${zone}</td>
-            <td class="count">${stats.caught}</td>
-            <td class="count">${stats.total}</td>
-            <td>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${percent}%">
-                        ${percent}%
-                    </div>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
+    const icons = ZONE_ICONS[category] || {};
+    container.innerHTML = Object.keys(zoneStats).sort().map(zone => {
+        const s = zoneStats[zone];
+        const percent = s.total > 0 ? Math.round((s.caught / s.total) * 100) : 0;
+        return `
+            <div class="zp-row">
+                <div class="zp-name${percent === 100 ? ' complete' : ''}">${icons[zone] || '📍'} ${zone}</div>
+                <div class="zp-bar"><div class="zp-fill" style="width:${percent}%"></div></div>
+                <div class="zp-count">${s.caught}/${s.total}</div>
+            </div>`;
+    }).join('');
 }
 
-// Peupler les filtres
-function populateFilters(category) {
+// ---------- Filtres ----------
+const FILTER_LABELS = { etat:'État', lieu:'Lieu', moment:'Moment', meteo:'Météo' };
+
+function filterKeysFor(category) {
+    return CATEGORIES_WITHOUT_METEO_FILTER.includes(category) ? ['etat','lieu','moment'] : ['etat','lieu','moment','meteo'];
+}
+
+function buildFilterPanels(category) {
     const fish = fishData[category];
-
-    const etats = new Set();
-    const lieux = new Set();
-    const moments = new Set();
-    const meteos = new Set();
-
+    const values = { etat: new Set(), lieu: new Set(), moment: new Set(), meteo: new Set() };
     fish.forEach(f => {
-        f.etat.forEach(e => etats.add(e));
-        f.lieu.forEach(l => lieux.add(l));
-        f.moment.forEach(m => moments.add(m));
-        f.meteo.forEach(m => meteos.add(m));
+        f.etat.forEach(v => values.etat.add(v));
+        f.lieu.forEach(v => values.lieu.add(v));
+        f.moment.forEach(v => values.moment.add(v));
+        f.meteo.forEach(v => { if (v !== 'Tout temps') values.meteo.add(v); });
     });
 
-    populateSelect(`filter-${category}-etat`, etats, statusMapping);
-    populateSelect(`filter-${category}-lieu`, lieux);
-    populateSelect(`filter-${category}-moment`, moments, periodMapping);
-    populateSelect(`filter-${category}-meteo`, meteos, weatherMapping);
-}
-
-function populateSelect(id, values, mappingObj = null) {
-    const select = document.getElementById(id);
-    const currentValue = select.value;
-
-    select.innerHTML = '<option value="">Tous</option>';
-
-    Array.from(values).sort().forEach(value => {
-        if (value !== 'N/A') {
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = mappingObj && mappingObj[value] ? mappingObj[value] : value;
-            select.appendChild(option);
-        }
+    filterKeysFor(category).forEach(key => {
+        const panel = document.getElementById(`panel-${category}-${key}`);
+        if (!panel) return;
+        const sorted = [...values[key]].sort();
+        panel.innerHTML = sorted.map(v => `
+            <div class="filter-option" onclick="toggleFilterOption('${category}','${key}','${v.replace(/'/g, "\\'")}')" id="opt-${category}-${key}-${slug(v)}">
+                <span class="box">✓</span><span class="lbl">${v}</span>
+            </div>`).join('') + `<div class="filter-panel-clear" onclick="clearCategoryFilter('${category}','${key}')">Effacer ce filtre</div>`;
     });
-
-    select.value = currentValue;
 }
 
-// Appliquer les filtres
+function slug(v) { return v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_'); }
+
+function togglePanel(category, key) {
+    document.querySelectorAll(`#panel-${category} .filter-panel, [id^="panel-${category}-"]`).forEach(p => {
+        if (p.id !== `panel-${category}-${key}`) p.classList.remove('open');
+    });
+    const panel = document.getElementById(`panel-${category}-${key}`);
+    if (panel) panel.classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.filter-dd')) {
+        document.querySelectorAll('.filter-panel').forEach(p => p.classList.remove('open'));
+    }
+});
+
+function toggleFilterOption(category, key, value) {
+    const set = selectedFilters[category][key];
+    if (set.has(value)) set.delete(value); else set.add(value);
+    const opt = document.getElementById(`opt-${category}-${key}-${slug(value)}`);
+    if (opt) opt.classList.toggle('checked');
+    updateFilterButton(category, key);
+    renderActiveChips(category);
+    applyFilters(category);
+}
+
+function clearCategoryFilter(category, key) {
+    selectedFilters[category][key].clear();
+    document.querySelectorAll(`#panel-${category}-${key} .filter-option`).forEach(o => o.classList.remove('checked'));
+    updateFilterButton(category, key);
+    renderActiveChips(category);
+    applyFilters(category);
+}
+
+function updateFilterButton(category, key) {
+    const btn = document.getElementById(`btn-${category}-${key}`);
+    if (!btn) return;
+    const n = selectedFilters[category][key].size;
+    const countEl = btn.querySelector('.count');
+    btn.classList.toggle('has-selection', n > 0);
+    countEl.style.display = n > 0 ? 'inline' : 'none';
+    countEl.textContent = n;
+}
+
+function toggleCaptureChip(category, which) {
+    captureFilterState[category][which] = !captureFilterState[category][which];
+    document.getElementById(`chip-${category}-${which}`).classList.toggle('checked', captureFilterState[category][which]);
+    renderActiveChips(category);
+    applyFilters(category);
+}
+
+function renderActiveChips(category) {
+    const container = document.getElementById(`active-chips-${category}`);
+    if (!container) return;
+    let chips = [];
+    filterKeysFor(category).forEach(key => {
+        selectedFilters[category][key].forEach(v => {
+            chips.push(`<div class="active-chip">${FILTER_LABELS[key]} : ${v}<button onclick="toggleFilterOption('${category}','${key}','${v.replace(/'/g, "\\'")}')">✕</button></div>`);
+        });
+    });
+    if (captureFilterState[category].caught) chips.push(`<div class="active-chip">Capturé<button onclick="toggleCaptureChip('${category}','caught')">✕</button></div>`);
+    if (captureFilterState[category].uncaught) chips.push(`<div class="active-chip">Non capturé<button onclick="toggleCaptureChip('${category}','uncaught')">✕</button></div>`);
+    if (chips.length > 0) chips.push(`<button class="btn-reset-all" onclick="resetAllFilters('${category}')">Tout réinitialiser</button>`);
+    container.innerHTML = chips.join('');
+}
+
+function resetAllFilters(category) {
+    filterKeysFor(category).forEach(key => selectedFilters[category][key].clear());
+    captureFilterState[category] = { caught:false, uncaught:false };
+    document.querySelectorAll(`[id^="panel-${category}-"] .filter-option`).forEach(o => o.classList.remove('checked'));
+    document.querySelectorAll(`#chip-${category}-caught, #chip-${category}-uncaught`).forEach(c => c.classList.remove('checked'));
+    const search = document.getElementById(`search-${category}`);
+    if (search) search.value = '';
+    filterKeysFor(category).forEach(key => updateFilterButton(category, key));
+    renderActiveChips(category);
+    applyFilters(category);
+}
+
 function applyFilters(category) {
-    const etat = document.getElementById(`filter-${category}-etat`).value;
-    const lieu = document.getElementById(`filter-${category}-lieu`).value;
-    const moment = document.getElementById(`filter-${category}-moment`).value;
-    const meteo = document.getElementById(`filter-${category}-meteo`).value;
-
+    const search = (document.getElementById(`search-${category}`)?.value || '').trim().toLowerCase();
     const fish = fishData[category];
-    const tbody = document.getElementById(`tbody-${category}`);
-    const rows = tbody.querySelectorAll('tr');
+    const cf = captureFilterState[category];
+    const sf = selectedFilters[category];
 
-    rows.forEach((row) => {
-        const originalIndex = parseInt(row.getAttribute('data-original-index'));
-        const f = fish[originalIndex];
+    let visibleCount = 0;
+    const isList = viewMode[category] === 'list';
+    const items = isList
+        ? document.querySelectorAll(`#tbody-${category} tr`)
+        : document.querySelectorAll(`#grid-${category} .fish-card`);
 
-        const matchEtat = !etat || f.etat.includes(etat);
-        const matchLieu = !lieu || f.lieu.includes(lieu);
-        const matchMoment = !moment || f.moment.includes(moment);
-        const matchMeteo = !meteo || f.meteo.includes(meteo);
+    items.forEach(el => {
+        const index = parseInt(el.getAttribute(isList ? 'data-original-index' : 'data-index'));
+        const f = fish[index];
+        const caught = isCaught(category, index);
 
-        if (matchEtat && matchLieu && matchMoment && matchMeteo) {
-            row.classList.remove('hidden');
-        } else {
-            row.classList.add('hidden');
-        }
-    });
-}
+        const matchSearch = !search || f.nom.toLowerCase().includes(search);
+        const matchCapture = (!cf.caught && !cf.uncaught) || (cf.caught && caught) || (cf.uncaught && !caught);
 
-// Réinitialiser les filtres
-function resetFilters(category) {
-    document.getElementById(`filter-${category}-etat`).value = '';
-    document.getElementById(`filter-${category}-lieu`).value = '';
-    document.getElementById(`filter-${category}-moment`).value = '';
-    document.getElementById(`filter-${category}-meteo`).value = '';
+        let matchAll = true;
+        filterKeysFor(category).forEach(key => {
+            if (sf[key].size === 0) return;
+            const has = [...sf[key]].some(v => f[key].includes(v));
+            if (!has) matchAll = false;
+        });
 
-    const rows = document.querySelectorAll(`#tbody-${category} tr`);
-    rows.forEach(row => row.classList.remove('hidden'));
-}
-
-// Changer d'onglet
-function switchTab(category) {
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
+        const visible = matchSearch && matchCapture && matchAll;
+        el.classList.toggle(isList ? 'hidden' : 'hidden', !visible);
+        if (visible) visibleCount++;
     });
 
-    document.querySelector(`.tab-button.${category}`).classList.add('active');
-    document.getElementById(category).classList.add('active');
-
-    localStorage.setItem('activeTab', category);
+    const rc = document.getElementById(`result-count-${category}`);
+    if (rc) rc.textContent = `${visibleCount} poisson${visibleCount > 1 ? 's' : ''} affiché${visibleCount > 1 ? 's' : ''}`;
 }
 
-// Trier le tableau
+// ---------- Tri (vue liste) ----------
 let sortStates = {};
-
 function sortTable(category, columnIndex) {
     const table = document.getElementById(`table-${category}`);
     const tbody = document.getElementById(`tbody-${category}`);
     const rows = Array.from(tbody.querySelectorAll('tr'));
     const headers = table.querySelectorAll('thead th');
-
     const key = `${category}-${columnIndex}`;
 
-    if (!sortStates[key]) {
-        sortStates[key] = 'none';
-    }
-
-    if (sortStates[key] === 'none') {
-        sortStates[key] = 'asc';
-    } else if (sortStates[key] === 'asc') {
-        sortStates[key] = 'desc';
-    } else {
-        sortStates[key] = 'none';
-    }
+    if (!sortStates[key]) sortStates[key] = 'none';
+    sortStates[key] = sortStates[key] === 'none' ? 'asc' : (sortStates[key] === 'asc' ? 'desc' : 'none');
 
     headers.forEach((header, idx) => {
         header.classList.remove('sorted-asc', 'sorted-desc');
-        if (idx === columnIndex) {
-            if (sortStates[key] === 'asc') {
-                header.classList.add('sorted-asc');
-            } else if (sortStates[key] === 'desc') {
-                header.classList.add('sorted-desc');
-            }
-        }
+        if (idx === columnIndex && sortStates[key] !== 'none') header.classList.add(sortStates[key] === 'asc' ? 'sorted-asc' : 'sorted-desc');
     });
 
     if (sortStates[key] === 'none') {
-        rows.sort((a, b) => {
-            const aIndex = parseInt(a.getAttribute('data-original-index'));
-            const bIndex = parseInt(b.getAttribute('data-original-index'));
-            return aIndex - bIndex;
-        });
+        rows.sort((a, b) => parseInt(a.getAttribute('data-original-index')) - parseInt(b.getAttribute('data-original-index')));
     } else {
         rows.sort((a, b) => {
             let aVal = a.cells[columnIndex].textContent.trim();
             let bVal = b.cells[columnIndex].textContent.trim();
-
-            if (columnIndex === 3) { // Colonne "Capturé"
+            if (columnIndex === 3) {
                 aVal = a.cells[columnIndex].querySelector('input').checked ? 1 : 0;
                 bVal = b.cells[columnIndex].querySelector('input').checked ? 1 : 0;
-            } else if (columnIndex === 1) { // Colonne numérique
-                aVal = parseInt(aVal);
-                bVal = parseInt(bVal);
+            } else if (columnIndex === 1) {
+                aVal = parseInt(aVal); bVal = parseInt(bVal);
             }
-
             if (aVal < bVal) return sortStates[key] === 'asc' ? -1 : 1;
             if (aVal > bVal) return sortStates[key] === 'asc' ? 1 : -1;
             return 0;
         });
     }
-
     rows.forEach(row => tbody.appendChild(row));
 }
 
-// Gestion des popups
-function openPopup(type) {
-    const popup = document.getElementById(`${type}Popup`);
-
-    if (type === 'site') {
-        const content = localStorage.getItem('siteContent') ||
-            '<p>Bienvenue sur le gestionnaire de pêche !</p><p>Vous pouvez modifier ce texte en cliquant dessus...</p>';
-        document.getElementById('siteContent').innerHTML = content;
-    }
-
-    popup.classList.add('active');
+// ---------- Onglets ----------
+function switchTab(category) {
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.querySelector(`.tab-button.${category}`).classList.add('active');
+    document.getElementById(category).classList.add('active');
+    document.body.setAttribute('data-cat', category);
+    localStorage.setItem('activeTab', category);
 }
 
+// ---------- Popups génériques ----------
+function openPopup(type) {
+    const popup = document.getElementById(`${type}Popup`);
+    if (type === 'site') {
+        const content = localStorage.getItem('siteContent') || '<p>Bienvenue dans le carnet du pêcheur !</p><p>Vous pouvez modifier ce texte en cliquant dessus...</p>';
+        document.getElementById('siteContent').innerHTML = content;
+    }
+    popup.classList.add('active');
+}
 function closePopup(event, type) {
     if (!event || event.target.classList.contains('popup-overlay') || event.target.classList.contains('popup-close')) {
         document.getElementById(`${type}Popup`).classList.remove('active');
     }
 }
-
 function saveSiteContent() {
-    const content = document.getElementById('siteContent').innerHTML;
-    localStorage.setItem('siteContent', content);
+    localStorage.setItem('siteContent', document.getElementById('siteContent').innerHTML);
     alert('Contenu sauvegardé !');
 }
 
-// Exporter les données (poissons capturés + notes personnelles) en fichier JSON
+// ---------- Export / Import ----------
 function exportData() {
     const data = {
         caughtFish: JSON.parse(localStorage.getItem('caughtFish') || '{}'),
         siteContent: localStorage.getItem('siteContent') || '',
         exportedAt: new Date().toISOString()
     };
-
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `peche-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    a.href = url; a.download = `gestion-du-pecheur-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
-
-// Importer des données depuis un fichier JSON exporté précédemment
 function importData() {
     const fileInput = document.getElementById('importFileInput');
     const file = fileInput.files[0];
-
-    if (!file) {
-        alert('Merci de sélectionner un fichier à importer.');
-        return;
-    }
-
+    if (!file) { alert('Merci de sélectionner un fichier à importer.'); return; }
     const reader = new FileReader();
     reader.onload = (event) => {
         try {
             const data = JSON.parse(event.target.result);
-
-            if (data.caughtFish) {
-                localStorage.setItem('caughtFish', JSON.stringify(data.caughtFish));
-            }
-            if (typeof data.siteContent === 'string') {
-                localStorage.setItem('siteContent', data.siteContent);
-            }
-
+            if (data.caughtFish) localStorage.setItem('caughtFish', JSON.stringify(data.caughtFish));
+            if (typeof data.siteContent === 'string') localStorage.setItem('siteContent', data.siteContent);
             alert('Données importées avec succès ! La page va se recharger.');
             location.reload();
         } catch (err) {
@@ -440,33 +546,35 @@ function importData() {
     reader.readAsText(file);
 }
 
-// Fermer avec la touche Échap
+// ---------- Échap ----------
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        document.querySelectorAll('.popup-overlay').forEach(popup => {
-            popup.classList.remove('active');
-        });
+        document.querySelectorAll('.popup-overlay').forEach(p => p.classList.remove('active'));
+        document.getElementById('fishModalOverlay')?.classList.remove('active');
     }
 });
 
-// Initialisation
+// ---------- Initialisation ----------
+function initCategory(category) {
+    buildFilterPanels(category);
+    renderCards(category);
+    updateStats(category);
+    updateZoneStats(category);
+
+    const searchInput = document.getElementById(`search-${category}`);
+    if (searchInput) searchInput.addEventListener('input', () => applyFilters(category));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    generateTable('standard');
-    generateTable('summer');
-    generateTable('halloween');
-    generateTable('bloodlust');
-    generateTable('horizon');
+    const savedViewMode = JSON.parse(localStorage.getItem('viewMode') || '{}');
+    validCategories.forEach(cat => { viewMode[cat] = savedViewMode[cat] || 'cards'; });
 
-    // Restaurer l'onglet actif de la dernière visite
-    const validTabs = ['standard', 'summer', 'halloween', 'bloodlust', 'horizon'];
+    validCategories.forEach(cat => {
+        initCategory(cat);
+        if (viewMode[cat] === 'list') setViewMode(cat, 'list');
+    });
+
     const savedTab = localStorage.getItem('activeTab');
-    if (savedTab && validTabs.includes(savedTab)) {
-        switchTab(savedTab);
-    }
-
-    console.log('Standard fish count:', fishData.standard.length);
-    console.log('Summer fish count:', fishData.summer.length);
-    console.log('Halloween fish count:', fishData.halloween.length);
-    console.log('Bloodlust fish count:', fishData.bloodlust.length);
-    console.log('Horizon fish count:', fishData.horizon.length);
+    const initialTab = (savedTab && validCategories.includes(savedTab)) ? savedTab : 'standard';
+    switchTab(initialTab);
 });
