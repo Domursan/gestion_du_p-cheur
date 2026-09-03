@@ -694,6 +694,7 @@ body{
 
 .fish-card.caught{
     box-shadow:0 0 0 2px #E8C468 inset;
+    background: color-mix(in srgb, #E8C468 14%, var(--card-bg));
 }
 
 .fish-card.hidden{
