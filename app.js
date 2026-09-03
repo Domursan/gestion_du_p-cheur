@@ -55,6 +55,7 @@ const fishData = {
 const validCategories = Object.keys(fishData);
 
 let viewMode = {};
+let sortMode = {};
 const selectedFilters = {}; // { cat: { etat:Set, lieu:Set, moment:Set, meteo:Set } }
 const captureFilterState = {}; // { cat: { caught:bool, uncaught:bool } }
 
@@ -384,6 +385,20 @@ function toggleCaptureChip(category, which) {
     applyFilters(category);
 }
 
+// Affiche les poissons non capturés en premier, sans jamais masquer les captures déjà faites
+function toggleSortMode(category) {
+    sortMode[category] = !sortMode[category];
+    localStorage.setItem('sortMode', JSON.stringify(sortMode));
+    applySortMode(category);
+}
+
+function applySortMode(category) {
+    const grid = document.getElementById(`grid-${category}`);
+    if (grid) grid.classList.toggle('sort-uncaught-first', !!sortMode[category]);
+    const chip = document.getElementById(`chip-${category}-sort`);
+    if (chip) chip.classList.toggle('checked', !!sortMode[category]);
+}
+
 function renderActiveChips(category) {
     const container = document.getElementById(`active-chips-${category}`);
     if (!container) return;
@@ -560,6 +575,7 @@ function initCategory(category) {
     renderCards(category);
     updateStats(category);
     updateZoneStats(category);
+    applySortMode(category);
 
     const searchInput = document.getElementById(`search-${category}`);
     if (searchInput) searchInput.addEventListener('input', () => applyFilters(category));
@@ -568,6 +584,9 @@ function initCategory(category) {
 document.addEventListener('DOMContentLoaded', () => {
     const savedViewMode = JSON.parse(localStorage.getItem('viewMode') || '{}');
     validCategories.forEach(cat => { viewMode[cat] = savedViewMode[cat] || 'cards'; });
+
+    const savedSortMode = JSON.parse(localStorage.getItem('sortMode') || '{}');
+    validCategories.forEach(cat => { sortMode[cat] = !!savedSortMode[cat]; });
 
     validCategories.forEach(cat => {
         initCategory(cat);
