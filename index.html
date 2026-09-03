@@ -52,6 +52,7 @@
                 <input type="text" class="search-input" id="search-standard" placeholder="Recherche un poisson">
                 <div class="capture-chip" id="chip-standard-caught" onclick="toggleCaptureChip('standard','caught')"><span class="box"></span> Capturé</div>
                 <div class="capture-chip" id="chip-standard-uncaught" onclick="toggleCaptureChip('standard','uncaught')"><span class="box"></span> Non capturé</div>
+                <div class="capture-chip" id="chip-standard-sort" onclick="toggleSortMode('standard')"><span class="box"></span> Non capturés d'abord</div>
                 <div class="view-toggle">
                     <button id="view-cards-standard" class="active" onclick="setViewMode('standard', 'cards')">Cartes</button>
                     <button id="view-list-standard" onclick="setViewMode('standard', 'list')">Liste</button>
@@ -124,6 +125,7 @@
                 <input type="text" class="search-input" id="search-summer" placeholder="Recherche un poisson">
                 <div class="capture-chip" id="chip-summer-caught" onclick="toggleCaptureChip('summer','caught')"><span class="box"></span> Capturé</div>
                 <div class="capture-chip" id="chip-summer-uncaught" onclick="toggleCaptureChip('summer','uncaught')"><span class="box"></span> Non capturé</div>
+                <div class="capture-chip" id="chip-summer-sort" onclick="toggleSortMode('summer')"><span class="box"></span> Non capturés d'abord</div>
                 <div class="view-toggle">
                     <button id="view-cards-summer" class="active" onclick="setViewMode('summer', 'cards')">Cartes</button>
                     <button id="view-list-summer" onclick="setViewMode('summer', 'list')">Liste</button>
@@ -196,6 +198,7 @@
                 <input type="text" class="search-input" id="search-halloween" placeholder="Recherche un poisson">
                 <div class="capture-chip" id="chip-halloween-caught" onclick="toggleCaptureChip('halloween','caught')"><span class="box"></span> Capturé</div>
                 <div class="capture-chip" id="chip-halloween-uncaught" onclick="toggleCaptureChip('halloween','uncaught')"><span class="box"></span> Non capturé</div>
+                <div class="capture-chip" id="chip-halloween-sort" onclick="toggleSortMode('halloween')"><span class="box"></span> Non capturés d'abord</div>
                 <div class="view-toggle">
                     <button id="view-cards-halloween" class="active" onclick="setViewMode('halloween', 'cards')">Cartes</button>
                     <button id="view-list-halloween" onclick="setViewMode('halloween', 'list')">Liste</button>
@@ -264,6 +267,7 @@
                 <input type="text" class="search-input" id="search-bloodlust" placeholder="Recherche un poisson">
                 <div class="capture-chip" id="chip-bloodlust-caught" onclick="toggleCaptureChip('bloodlust','caught')"><span class="box"></span> Capturé</div>
                 <div class="capture-chip" id="chip-bloodlust-uncaught" onclick="toggleCaptureChip('bloodlust','uncaught')"><span class="box"></span> Non capturé</div>
+                <div class="capture-chip" id="chip-bloodlust-sort" onclick="toggleSortMode('bloodlust')"><span class="box"></span> Non capturés d'abord</div>
                 <div class="view-toggle">
                     <button id="view-cards-bloodlust" class="active" onclick="setViewMode('bloodlust', 'cards')">Cartes</button>
                     <button id="view-list-bloodlust" onclick="setViewMode('bloodlust', 'list')">Liste</button>
@@ -332,6 +336,7 @@
                 <input type="text" class="search-input" id="search-horizon" placeholder="Recherche un poisson">
                 <div class="capture-chip" id="chip-horizon-caught" onclick="toggleCaptureChip('horizon','caught')"><span class="box"></span> Capturé</div>
                 <div class="capture-chip" id="chip-horizon-uncaught" onclick="toggleCaptureChip('horizon','uncaught')"><span class="box"></span> Non capturé</div>
+                <div class="capture-chip" id="chip-horizon-sort" onclick="toggleSortMode('horizon')"><span class="box"></span> Non capturés d'abord</div>
                 <div class="view-toggle">
                     <button id="view-cards-horizon" class="active" onclick="setViewMode('horizon', 'cards')">Cartes</button>
                     <button id="view-list-horizon" onclick="setViewMode('horizon', 'list')">Liste</button>
@@ -386,7 +391,7 @@
 
     <footer class="site-footer">
         <p>Support technique : Tane Morgan — 555-1279</p>
-        <p>© 2026 Gestion du pêcheur - V 2.3.1 — Tous droits réservés</p>
+        <p>© 2026 Gestion du pêcheur — Tous droits réservés</p>
     </footer>
 
     <!-- Modale fiche poisson -->
