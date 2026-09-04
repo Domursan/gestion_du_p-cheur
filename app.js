@@ -118,7 +118,7 @@ function renderCards(category) {
             <span class="spark s2">✧</span>
             <span class="spark s3">✦</span>
             <div class="card-top">
-                <div class="card-num">${f.numero2}</div>
+                <div class="card-num">N°${f.numero} · ${f.numero2}</div>
                 <button class="detail-btn" aria-label="Voir la fiche détail" onclick="openFishModal('${category}', ${index})">i</button>
             </div>
             <div class="card-icon">🐟</div>
@@ -302,7 +302,7 @@ function updateZoneStats(category) {
             <div class="zp-row">
                 <div class="zp-name${percent === 100 ? ' complete' : ''}">${icons[zone] || '📍'} ${zone}</div>
                 <div class="zp-bar"><div class="zp-fill" style="width:${percent}%"></div></div>
-                <div class="zp-count">${s.caught}/${s.total}</div>
+                <div class="zp-count">${percent}% · ${s.caught}/${s.total}</div>
             </div>`;
     }).join('');
 }
