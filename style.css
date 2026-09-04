@@ -413,8 +413,9 @@ body{
     font-family: var(--mono);
     font-size:0.6rem;
     color: var(--text-muted);
-    width:40px;
+    width:88px;
     text-align:right;
+    white-space:nowrap;
 }
 
 .label{
