@@ -5,7 +5,7 @@ const FISH_DATA_STANDARD = [
         numero: 1,
         numero2: "1G",
         etat: ["Sobre"],
-        lieu: ["Mer Sud", "Mer Nord", "Grand Lac", "Petits Lacs"],
+        lieu: ["Mer Sud", "Mer Nord", "Grand Lac"],
         moment: ["Aube", "Journée", "Crépuscule", "Nuit"],
         meteo: ["Nuageux"]
     },
@@ -556,7 +556,7 @@ const FISH_DATA_STANDARD = [
         etat: ["Bourré"],
         lieu: ["Mer Nord", "Mer Sud"],
         moment: ["Nuit"],
-        meteo: ["Nuageux", "Brumeux", "Nuageux"]
+        meteo: ["Nuageux", "Brumeux"]
     },
     {
         nom: "Crabantine",
@@ -700,7 +700,7 @@ const FISH_DATA_STANDARD = [
         etat: ["Sobre"],
         lieu: ["Rivières"],
         moment: ["Crépuscule"],
-        meteo: ["Brumeux", "Pluvieux", "Brumeux"]
+        meteo: ["Brumeux", "Pluvieux"]
     },
     {
         nom: "Twinfish",
@@ -736,7 +736,7 @@ const FISH_DATA_STANDARD = [
         etat: ["Sobre"],
         lieu: ["Mer Sud", "Mer Nord"],
         moment: ["Aube", "Journée", "Crépuscule", "Nuit"],
-        meteo: ["Nuageux", "Pluvieux", "Brumeux"]
+        meteo: "Pluvieux", "Brumeux"]
     },
     {
         nom: "Cryscrab",
