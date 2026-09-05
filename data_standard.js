@@ -736,7 +736,7 @@ const FISH_DATA_STANDARD = [
         etat: ["Sobre"],
         lieu: ["Mer Sud", "Mer Nord"],
         moment: ["Aube", "Journée", "Crépuscule", "Nuit"],
-        meteo: "Pluvieux", "Brumeux"]
+        meteo: ["Pluvieux", "Brumeux"]
     },
     {
         nom: "Cryscrab",
