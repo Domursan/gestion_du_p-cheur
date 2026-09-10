@@ -112,6 +112,11 @@ function renderCards(category) {
         card.className = `fish-card ${caught ? 'caught' : 'uncaught'}`;
         card.setAttribute('data-index', index);
 
+        const imgUrl = getFishImage(category, f.nom);
+        const iconContent = imgUrl
+            ? `<img class="fish-img" src="${imgUrl}" alt="${f.nom}" loading="lazy" onload="this.classList.add('loaded'); this.closest('.card-icon').classList.remove('loading')" onerror="this.closest('.card-icon').classList.remove('loading'); this.parentElement.textContent='🐟'">`
+            : '🐟';
+
         card.innerHTML = `
             <span class="ring"></span>
             <span class="spark s1">✦</span>
@@ -121,7 +126,7 @@ function renderCards(category) {
                 <div class="card-num">N°${f.numero} · ${f.numero2}</div>
                 <button class="detail-btn" aria-label="Voir la fiche détail" onclick="openFishModal('${category}', ${index})">i</button>
             </div>
-            <div class="card-icon">🐟</div>
+            <div class="card-icon${imgUrl ? ' loading' : ''}">${iconContent}</div>
             <div class="card-name">${f.nom}</div>
             ${renderCondBlock(category, f)}
             <button type="button" class="capture-row" aria-pressed="${caught ? 'true' : 'false'}" onclick="toggleCaught('${category}', ${index})">
@@ -195,6 +200,13 @@ function openFishModal(category, index) {
     document.body.querySelectorAll('.fish-modal').forEach(m => {}); // no-op, single modal reused
     document.getElementById('fmNumber').textContent = `N° ${f.numero} — Page ${f.numero2}`;
     document.getElementById('fmName').textContent = f.nom;
+
+    const fmImage = document.getElementById('fmImage');
+    const imgUrl = getFishImage(category, f.nom);
+    fmImage.className = 'fm-image' + (imgUrl ? ' loading' : '');
+    fmImage.innerHTML = imgUrl
+        ? `<img class="fish-img" src="${imgUrl}" alt="${f.nom}" onload="this.classList.add('loaded'); this.closest('.fm-image').classList.remove('loading')" onerror="this.closest('.fm-image').classList.remove('loading'); this.parentElement.textContent='🐟'">`
+        : '🐟';
 
     document.getElementById('fmEtat').innerHTML = f.etat.map(e => `<div class="fm-value"><span>${STATUS_ICON[e] || ''}</span> ${e}</div>`).join('');
     document.getElementById('fmLieu').innerHTML = f.lieu.map(l => `<div class="fm-value"><span>${(ZONE_ICONS[category] || {})[l] || '📍'}</span> ${l}</div>`).join('');
