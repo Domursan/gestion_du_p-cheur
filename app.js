@@ -289,6 +289,10 @@ function updateStats(category) {
     const fill = document.getElementById(`gp-fill-${category}`);
     fill.style.width = percent + '%';
     fill.textContent = percent + '%';
+
+    // Onglet doré quand la collection entière est complétée à 100%
+    const tabButton = document.querySelector(`.tab-button.${category}`);
+    if (tabButton) tabButton.classList.toggle('complete', percent === 100);
 }
 
 function updateZoneStats(category) {
