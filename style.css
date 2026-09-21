@@ -285,6 +285,20 @@ body{
     --tab-accent: var(--c-horizon);
 }
 
+/* Collection complétée à 100% : titre de l'onglet en doré, même teinte
+   que la complétion par zone (.zp-name.complete). Spécificité renforcée
+   pour l'emporter aussi bien à l'état inactif, survolé, qu'actif. */
+.tab-button.complete{
+    color:#E8C468;
+    font-weight:600;
+}
+.tab-button.complete:hover{
+    color:#E8C468;
+}
+.tab-button.complete.active{
+    color:#E8C468;
+}
+
 /* ---------- Container ---------- */
 
 .container{
