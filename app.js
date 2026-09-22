@@ -41,8 +41,12 @@ const ZONE_ICONS = {
 
 const categoryLabels = { standard:'Standard', summer:'Summer', halloween:'Halloween', bloodlust:'Bloodlust', horizon:'Horizon' };
 
-// Halloween et Bloodlust sont 100% "Tout temps" : le filtre météo n'y a aucun effet utile
+// Halloween et Bloodlust sont 100% "Tout temps" ET disponibles aux 4
+// moments de la journée pour chaque poisson (vérifié sur l'ensemble des
+// deux collections) : les filtres météo et moment n'y ont donc aucun
+// effet utile et sont masqués.
 const CATEGORIES_WITHOUT_METEO_FILTER = ['halloween', 'bloodlust'];
+const CATEGORIES_WITHOUT_MOMENT_FILTER = ['halloween', 'bloodlust'];
 
 // ---------- Données ----------
 const fishData = {
@@ -327,7 +331,10 @@ function updateZoneStats(category) {
 const FILTER_LABELS = { etat:'État', lieu:'Lieu', moment:'Moment', meteo:'Météo' };
 
 function filterKeysFor(category) {
-    return CATEGORIES_WITHOUT_METEO_FILTER.includes(category) ? ['etat','lieu','moment'] : ['etat','lieu','moment','meteo'];
+    let keys = ['etat', 'lieu', 'moment', 'meteo'];
+    if (CATEGORIES_WITHOUT_MOMENT_FILTER.includes(category)) keys = keys.filter(k => k !== 'moment');
+    if (CATEGORIES_WITHOUT_METEO_FILTER.includes(category)) keys = keys.filter(k => k !== 'meteo');
+    return keys;
 }
 
 function buildFilterPanels(category) {
